@@ -23,9 +23,11 @@ class Game {
     this.interval = setInterval(() => {
       this.clear();
 
+      this.move();
+
       this.draw();
 
-      this.move();
+      this.checkCollisions();
 
       tick++;
 
@@ -36,10 +38,38 @@ class Game {
     }, 1000 / 60);
   }
 
+  checkCollisions() {
+    this.enemies.forEach((enemy) => {
+      if (this.player.collides(enemy)) {
+        this.gameOver();
+      }
+
+      this.player.bullets.forEach((b) => {
+        if (b.collides(enemy)) {
+          // remove enemy from array
+          this.enemies = this.enemies.filter((e) => e !== enemy);
+        }
+      });
+    });
+  }
+
+  gameOver() {
+    const audio = new Audio("/assets/audio/gameover.mp3");
+
+    audio.volume = 0.05;
+
+    audio.play();
+
+    this.pause();
+  }
+
   addEnemy() {
     const newEnemy = new Enemy(this.ctx);
-
     this.enemies.push(newEnemy);
+
+    this.enemies = this.enemies.filter((e) => e.x + e.w > 0);
+
+    console.log(this.enemies.length);
   }
 
   pause() {
